@@ -1,0 +1,13 @@
+.product {
+  display: flex;
+  background-color: #444;
+  margin-bottom: 10px;
+}
+
+.productName {
+  background-color: orange;
+}
+
+.productName.inBasket {
+  color: green;
+}

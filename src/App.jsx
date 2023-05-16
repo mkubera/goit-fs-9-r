@@ -1,22 +1,24 @@
-import { useState } from "react";
+import { Component } from "react";
 import "./App.css";
-import Product from "./components/Product";
+import ProductClass from "./components/Product/ProductClass";
 import { nanoid } from "nanoid";
+import ButtonClass from "./components/Button/ButtonClass";
 
-const PRODUCTS_DATA = [
-	{ id: nanoid(), name: "Water", price: 5, leftInStock: 0, imgUrl: "" },
-	{ id: nanoid(), name: "Food", price: 10, leftInStock: 250, imgUrl: "" },
-	{ id: nanoid(), name: "T-shirt", price: 15, leftInStock: 50, imgUrl: "" },
-	{ id: nanoid(), name: "T-shirt", price: 15, leftInStock: 50, imgUrl: "" },
-];
+import PRODUCTS_DATA from "./data/products.json";
 
-function App() {
-	// INPUT: dane (any) [wartosc startowa]
-	// OUTPUT: Array (Tuple) [dane, funkcje_do_updateu_danych]
-	// useState to REACT HOOK
-	const [products, setProducts] = useState(PRODUCTS_DATA);
+class App extends Component {
+	constructor(props) {
+		super(props);
 
-	const addProduct = () => {
+		// MODEL (STATE)
+		this.state = {
+			isAddedToCart: false,
+			products: PRODUCTS_DATA, // Array of Product{}
+			basket: [], // Array of Ids (Strings)
+		};
+	}
+
+	addProduct = (_e) => {
 		const newProduct = {
 			id: nanoid(),
 			name: "Whatever",
@@ -25,27 +27,66 @@ function App() {
 			imgUrl: "",
 		};
 
-		setProducts((state) => [...state, newProduct]);
+		this.setState(({ products }, _props) => ({
+			products: [...products, newProduct],
+		}));
 	};
 
-	return (
-		<>
-			<h1>App</h1>
+	toggleIsAddedToCart = (_e) => {
+		this.setState(({ isAddedToCart }, _props) => ({
+			isAddedToCart: !isAddedToCart,
+		}));
+	};
 
-			{/* <p>{true && "&& true"}</p>
-			<p>{false && "&& false"}</p>
-			<p>{true || "|| true"}</p>
-			<p>{false || "|| false"}</p> */}
+	addProductToBasket = (id) => {
+		console.log(id);
+		console.log(this.state.basket);
+		this.setState(({ basket }) => ({ basket: [...basket, id] }));
+	};
 
-			<ul>
-				{products.map((p) => (
-					<Product key={p.id} {...p} />
-				))}
-			</ul>
+	render() {
+		const { products, basket, isAddedToCart } = this.state;
 
-			<button onClick={addProduct}>Add Product</button>
-		</>
-	);
+		return (
+			<>
+				{/* <ButtonClass
+					isAddedToCart={isAddedToCart}
+					toggleIsAddedToCart={this.toggleIsAddedToCart}
+				/> */}
+
+				<h1>App</h1>
+
+				<h3>Products</h3>
+				<button onClick={this.addProduct}>Add Product</button>
+				<ul>
+					{products.map((p) => (
+						<ProductClass
+							key={p.id}
+							{...p}
+							isBasket={false}
+							addProductToBasket={this.addProductToBasket}
+						/>
+					))}
+				</ul>
+				<h3>Basket</h3>
+				<ul>
+					{products
+						.filter((p) => basket.includes(p.id))
+						.map((p) => (
+							<ProductClass
+								key={p.id}
+								{...p}
+								isBasket={true}
+								addProductToBasket={this.addProductToBasket}
+							/>
+						))}
+					{/* {basket.map((id) => (
+						<li key={id}>{id}</li>
+					))} */}
+				</ul>
+			</>
+		);
+	}
 }
 
 export default App;
